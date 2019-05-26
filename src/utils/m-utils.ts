@@ -2,12 +2,16 @@ import * as m from '@thi.ng/matrices'
 import * as t from '@thi.ng/transducers'
 import * as g from '@thi.ng/math'
 import * as v from '@thi.ng/vectors'
+import { isMatrix, isNonNegative } from './is';
 
 export type Matrix = Array<Array<number>>
 // export type BiMatrix = Matrix & {length: } fix property
 
 export const shape = (mat: Matrix): [number, number | null] => [mat.length, mat[0] ? mat[0].length : null]
-const nonNeg = (x: number) =>  x >= 0
+
+export function mapBiMatrix(a: Matrix, fn: (m: number, i: number, j: number) => number) {
+  return a.map((row, i) => row.map((elem, j) => fn(elem, i, j)))
+}
 
 export function sameShape(...fs: Matrix[]) {
   const s = shape(fs[0])
@@ -15,8 +19,30 @@ export function sameShape(...fs: Matrix[]) {
 }
 
 export function allNonNegative(mat: Matrix) {
-  return mat.every(r => r.every(nonNeg))
+  return mat.every(r => r.every(isNonNegative))
 }
+
+export function mProduct(f: Matrix | number, s: Matrix): Matrix {
+  if (isMatrix(f)) {
+    if (!sameShape(f, s)) { [[]] }
+    m.mul22([], f, s)
+    return [[]] // TODO: Cache behavior
+  } else {
+    return mapBiMatrix(s, (e) => e * f)
+  }
+}
+
+export function mSum(f: Matrix , s: Matrix): Matrix {
+  if (!sameShape(f, s)) { [[]] }
+  return mapBiMatrix(f, (e, i, j) => e + s[i][j])
+}
+
+export function mDiff(f: Matrix, s: Matrix) {
+  if (!sameShape(f, s)) { return null }
+  const negS = mProduct(-1 ,s)
+  return mSum(f, negS)
+}
+
 
 /**
  * Sum over matrix column
@@ -35,5 +61,3 @@ export function sumAxis0(mat: Matrix) {
 export function sumAxis1(mat: Matrix) {
   return mat.map(v.sum)
 }
-
-

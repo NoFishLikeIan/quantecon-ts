@@ -4,7 +4,7 @@ Kemeny et al. (1956, ECTA) and Gale (1960, Chapter 9.5)
 
 import * as m from '@thi.ng/matrices'
 import * as v from '@thi.ng/vectors'
-import { Matrix, sameShape, allNonNegative, shape } from '../utils/m-utils'
+import { Matrix, sameShape, allNonNegative, shape, mDiff, mProduct } from '../utils/m-utils'
 import { assertOrThrow } from '../utils/errors'
 import { vonNeummanAssumptions } from './assumptions';
 
@@ -19,9 +19,9 @@ function validateAB(A: Matrix, B: Matrix, strict: boolean = false) {
 
 
 function bounds(A: Matrix, B: Matrix) {
-  const [n, m] = shape(A)
+  const [n_, m_] = shape(A)
 
-  const f = (alpha: number) => alpha // ((B - α * A) @ np.ones((n, 1))).max()
+  const f = (alpha: number) => mProduct(mDiff(B, mProduct(alpha, A)), ) // ((B - α * A) @ np.ones((n, 1))).max()
   const g = (beta: number) => beta // (np.ones((1, m)) @ (B - β * A)).min()
 
 }
